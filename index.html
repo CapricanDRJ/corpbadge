@@ -219,7 +219,7 @@ function buildGrid(mountId, source, layer, key, kind, mirror) {
       const sw = document.createElement('span');
       sw.className = 'thumb swatch';
       sw.style.background = 'rgb(' + item.r + ',' + item.g + ',' + item.b + ')';        // real (dark) swatch
-      tile.style.setProperty('--glow', '#ffffff');
+      tile.style.setProperty('--glow', 'var(--accent)');
       tile.appendChild(sw);
     }
 
