@@ -179,15 +179,16 @@ function thumbFallback(e) {
   img.src = joinBase(REMOTE, img.dataset.file);
 }
 
-function select(key, idx) {
+function select(key, idx, skipRender = false) {
   state[key] = idx;
   groups[key].forEach(t => {
     const on = (+t.dataset.idx === idx);
     t.classList.toggle('sel', on);
     t.setAttribute('aria-checked', on ? 'true' : 'false');
-    t.tabIndex = on ? 0 : -1;      // roving tabindex: Tab lands on the selection
+    t.tabIndex = on ? 0 : -1;      
   });
-  render();
+  // Only render if we aren't told to skip it
+  if (!skipRender) render();
 }
 
 function buildGrid(mountId, source, layer, key, kind, mirror) {
@@ -287,14 +288,16 @@ document.getElementById('download').addEventListener('click', () => {
   }, 'image/png');
 });
 
-// Randomize each group on load so every reload shows a new badge
 Object.keys(groups).forEach(key => {
   const tiles = groups[key];
-  // 1. Pick a random tile from the available buttons
   const randomTile = tiles[Math.floor(Math.random() * tiles.length)];
-  // 2. Pass its ACTUAL data-idx value to the select function
-  select(key, +randomTile.dataset.idx);
+  
+  // Select the button and update state synchronously, but SKIP rendering
+  select(key, +randomTile.dataset.idx, true); 
 });
+
+// The loop is completely done. Now, render the final canvas exactly once.
+render();
 </script>
 </body>
 </html>
