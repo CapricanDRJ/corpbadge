@@ -287,14 +287,6 @@ document.getElementById('download').addEventListener('click', () => {
   }, 'image/png');
 });
 
-// Randomize each group on load so every reload shows a new badge
-Object.keys(groups).forEach(key => {
-  const tiles = groups[key];
-  // 1. Pick a random tile from the available buttons
-  const randomTile = tiles[Math.floor(Math.random() * tiles.length)];
-  // 2. Pass its ACTUAL data-idx value to the select function
-  select(key, +randomTile.dataset.idx);
-});
 </script>
 </body>
 </html>
