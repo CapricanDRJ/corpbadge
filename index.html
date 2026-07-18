@@ -169,6 +169,7 @@ const ctx = stage.getContext('2d');
 
 const state = { symbol: 0, border: 0, color1: 0, color2: 0 };
 const groups = {}; // key -> array of tile buttons
+const layer0Colors = Badges.colorData.filter(c => c.layer === 0); // bright colors, in order
 
 // If a local thumbnail 404s, retry once from the remote host.
 function thumbFallback(e) {
@@ -189,11 +190,15 @@ function select(key, idx) {
   render();
 }
 
-function buildGrid(mountId, source, layer, key, kind) {
+function buildGrid(mountId, source, layer, key, kind, mirror) {
   const mount = document.getElementById(mountId);
   const tiles = [];
+  let pos = 0; // position within this group (for mirroring)
   source.forEach((item, idx) => {
     if (item.layer !== layer) return;
+    // Border-color picker shows the bright Color-1 swatch/glow/name at the same
+    // position (mirror=true); the badge still renders with the real dark value.
+    const disp = (kind === 'color' && mirror) ? layer0Colors[pos] : item;
     const tile = document.createElement('button');
     tile.type = 'button';
     tile.className = 'tile' + (kind === 'color' ? ' tile-color' : '');
@@ -212,20 +217,20 @@ function buildGrid(mountId, source, layer, key, kind) {
     } else {
       const sw = document.createElement('span');
       sw.className = 'thumb swatch';
-      const rgb = 'rgb(' + item.r + ',' + item.g + ',' + item.b + ')';
-      sw.style.background = rgb;
-      tile.style.setProperty('--glow', rgb); // selected color tile glows in its own color
+      sw.style.background = 'rgb(' + item.r + ',' + item.g + ',' + item.b + ')';        // real (dark) swatch
+      tile.style.setProperty('--glow', 'rgb(' + disp.r + ',' + disp.g + ',' + disp.b + ')'); // selection glow (bright/mirrored)
       tile.appendChild(sw);
     }
 
     const num = document.createElement('span');
     num.className = 'num';
-    num.textContent = kind === 'icon' ? String(idx) : (idx + ' \u2014 ' + item.name);
+    num.textContent = kind === 'icon' ? String(idx) : (idx + ' \u2014 ' + disp.name);
     tile.appendChild(num);
 
     tile.addEventListener('click', () => select(key, idx));
     tiles.push(tile);
     mount.appendChild(tile);
+    pos++;
   });
 
   // Arrow-key navigation within the group (acts like a radio group)
@@ -267,7 +272,7 @@ async function render() {
 buildGrid('symbolGrid', Badges.iconData, 0, 'symbol', 'icon');
 buildGrid('borderGrid', Badges.iconData, 1, 'border', 'icon');
 buildGrid('color1Grid', Badges.colorData, 0, 'color1', 'color');
-buildGrid('color2Grid', Badges.colorData, 1, 'color2', 'color');
+buildGrid('color2Grid', Badges.colorData, 1, 'color2', 'color', true);
 
 document.getElementById('download').addEventListener('click', () => {
   stage.toBlob((blob) => {
