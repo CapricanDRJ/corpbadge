@@ -282,7 +282,7 @@ document.getElementById('download').addEventListener('click', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'corpicon.png';
+    a.download = `badge_sym${state.symbol}_bor${state.border}_col1-${state.color1}_col2-${state.color2}.png`;
     a.click();
     URL.revokeObjectURL(url);
   }, 'image/png');
